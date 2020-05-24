@@ -2,7 +2,7 @@ import os, sys, re
 sys.path.insert(0, '../')
 import pandas as pd
 import numpy as np
-import preprocessing.image_name_config as image_name_config
+import image_name_config as image_name_config
 
 data_dir = '/Volumes/stroke_hdd1/stroke_db/2016/part2'
 spc_ct_sequences = image_name_config.spc_ct_sequences

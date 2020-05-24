@@ -1,7 +1,7 @@
 import os, sys
 import subprocess
 sys.path.insert(0, '../')
-from tools.segmentation.brain_extraction import brain_extraction
+from segmentation.brain_extraction import brain_extraction
 
 def align_FOV(image_to_bet, no_contrast_anatomical, data_dir):
 

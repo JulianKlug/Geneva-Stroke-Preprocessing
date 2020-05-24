@@ -1,6 +1,6 @@
 import os, time, argparse, sys, shutil
 import pandas as pd
-sys.path.insert(0, '../')
+sys.path.insert(0, '../../')
 from tools.fsl_wrappers.mcflirt import mcflirt
 from tools.coregistration_4D import coregistration_4D
 from tools.segmentation.brain_extraction import brain_extraction

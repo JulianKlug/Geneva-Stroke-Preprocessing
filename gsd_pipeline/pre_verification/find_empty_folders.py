@@ -1,5 +1,4 @@
 import os
-import numpy as np
 import pandas as pd
 
 main_dir = '/Volumes/stroke_hdd1/stroke_db/2017/imaging_data'

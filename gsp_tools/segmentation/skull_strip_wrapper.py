@@ -1,9 +1,8 @@
-import os, subprocess, sys
-sys.path.insert(0, '../')
+import os, subprocess
 from csf_segmentation import createCSFMask
 main_dir = '/Users/julian/temp/extraction_bv40/trial1'
 data_dir = os.path.join(main_dir, '')
-skull_strip_path = os.path.join('./tools', 'skull_strip.sh')
+skull_strip_path = os.path.join('./', 'skull_strip.sh')
 high_definition = False
 print(skull_strip_path)
 

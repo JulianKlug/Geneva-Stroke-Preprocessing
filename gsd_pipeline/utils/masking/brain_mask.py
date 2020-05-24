@@ -1,6 +1,4 @@
-import sys, argparse
-sys.path.insert(0, '../../analysis')
-
+import argparse
 import os
 import nibabel as nib
 import numpy as np

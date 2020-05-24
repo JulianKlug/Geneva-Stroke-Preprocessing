@@ -1,8 +1,7 @@
 import os, sys
 sys.path.insert(0, '../')
 import pandas as pd
-import numpy as np
-import image_name_config as image_name_config
+from gsd_pipeline import image_name_config as image_name_config
 
 pct_sequences = image_name_config.pct_sequences
 ct_perf_sequence_names = image_name_config.ct_perf_sequence_names

@@ -1,8 +1,9 @@
-# stroke-predict
-This repository hosts scripts for a research project on prediction of ischemic stroke.
+# Geneva Stroke Preprocessing - *GSP*
+This repository hosts preprocessing tools for acute stroke imaging. 
+It has been initially created for the Geneva Stroke Dataset (GSD). 
 
 ## How-to
-### Pre-processing Pipeline
+### GSD Pre-processing Pipeline
 
 ##### 1. Data Verification
 - pre_verification/find_empty_folders.py : find empty folders in subject directories hinting towards failed exports and save in excel file
@@ -17,7 +18,7 @@ This repository hosts scripts for a research project on prediction of ischemic s
     - Nb.: watch out for patient seperator, patient might be missed if they use a different seperator in their file/folder names
 2. verify_completeness.py (dcm) : verify that all necessary files are present
 3. to_nii_batch.py : batch convert subject DICOMs to Nifti
-4. flatten.py : flatten into an MRI and a CT folder
+4. utils/flatten.py : flatten into an MRI and a CT folder
 5. verify_completeness.py (nifti) : verify that all necessary files are present
 
 Verify clinical exclusion criteria:
@@ -32,8 +33,8 @@ This is the general pipeline, for specificities for perfusion maps, Angio-CT or 
 --> Add this point data can be uploaded to a remote server
 1. skull_strip/skull_strip_wrapper.py : batch skull strip native CTs of multiple patients and segment CSF
 2. Unless Perfusion maps are to be excluded, follow the steps in 3.2
-3. matlab/perfCT_coregistration_wrapper.m : coregister perfusion CT to betted native CT
-4. matlab/perfCT_normalisation_wrapper.m : normalise perfusion CT and native CT to CT_MNI (if this needs to be reprocessed, step 2. also needs to be done again)
+3. matlab_tools/perfCT_coregistration_wrapper.m : coregister perfusion CT to betted native CT
+4. matlab_tools/perfCT_normalisation_wrapper.m : normalise perfusion CT and native CT to CT_MNI (if this needs to be reprocessed, step 2. also needs to be done again)
 
 ##### 3.2 Perfusion maps 
 Map order: Tmax, CBF, MTT, CBV
@@ -115,16 +116,6 @@ After running the whole CT and MRI preprocessing, run these steps again with the
 - Clinical Toolbox for SPM (https://www.nitrc.org/projects/clinicaltbx/) [Has to be in the folder spm12/toolbox]
 - dcm2niix : https://github.com/rordenlab/dcm2niix
 
-### Cross-validation pipeline
-
-1. data_loader.py/load_and_save_data() : Load subject data into dataset file
-
-2. voxelwise/main.py : Cross-validation [CV] launcher - choose model to test, modalities of CV, receptive fields hyperopt
-
-### Result analysis
-
-- analysis/voxelwise/figures : set of functions to build figures from data resulting from CV
-- meta/extract_results_to_excel.py : extraction of cross-validation results into a human-readable excel file
 
 ## Explanation
 ### I. Data Collection
@@ -215,79 +206,3 @@ As RAPID performs excessive skull-stripping, some parts of the brain are not cov
 2. The obtained brain mask is applied to the lesion labels to avoid having lesion data where no pCT data is defined
 
 The obtained brain mask is applied to the train and test sets throughout the cross-validation, as the only areas of the brain space that are of interest for this analysis are the ones where pCT maps are defined.
-
-### III. Voxelwise Model evaluation
-
-- Data loading: Image Data along with labels, clinical inputs, ids and brain masks is converted from nifti to a numpy format for ease of loading [analysis/data_loader.py]
-
-- Evaluation options [analysis/voxelwise/main.py]
-    - Feature scaling: to achieve faster convergence features can be scaled by applying the function : data - mean / std (as implemented by StandardScaler from sklearn)
-        - Cave: This should not be used on models where the numerical value of the input matters (for example threshold models with a predefined threshold)
-    - Pre smoothing: apply a Gaussian blur 5x5 voxel kernel on the data for greater noise resistance
-        - This is necessary for the models defined by Campbell et al.
-    - receptive field size hyperoptimization range (receptive field dimensions are defined as steps from the center voxel)
-        - 0-1: do not use receptive fields --> voxelwise
-        - >= 1: using receptive fields
-        
-- Scale verification: In oder to identify pCT sequences that use a different scale (approx. x10): the median of every input image channel is checked. If it exceeds x5 times the inter-subject median for that channel, it is down-scaled 10x times
-        
-- N-repeated k-fold Cross-validation [analysis/voxelwise/cv_framework.py]
-    - For every new repetition a random seed is generated to initiate kfold cross-validation (CV)
-    - kfold CV (as implemented by sklearn) defines k-folds along the patient axis (ie: one patient can only be in one fold)
-    - A new model is defined for every fold
-    - Fold creation: 
-        - Training data: 
-            - Receptive fields creation [analysis/voxelwise/receptiveField.py]
-                - The data is padded with 0 around to allow computation of the data at the borders
-                - A rolling window with total overlap and a 1 voxel stride is applied to obtain views of the input array 
-                    - Receptive field size (rf_d): the size of a receptive field denotes the number of voxel steps from the center voxel to the border along every spatial dimension (rf_x, rf_y, rf_z)
-                    - Receptive field dimensions: a receptive field is spatially defined around a center voxel and spans n_c channels (1 + 2*rf_x, 1 + 2*rf_y, 1 + 2*rf_z, n_c). In this application the dimensions the dimensions are then flattened.  
-            - Data is undersampled to obtain a 1:1 label ratio [analysis/sampling_utils.py]
-            - A brain mask is applied to use only the data where pCT data is available
-        - Testing data:
-            - Receptive field creation
-            - A brain mask is applied to test only on the data where pCT data is available            
-    - Fold evaluation
-        - Scores [analysis/voxelwise/scoring_utils.py]
-            - ROC curve is determined from labels and the output of a model (probability of infarction)
-            - AUC is determined
-            - Optimal threshold is determined from youden j
-            - 3D image is reconstructed from output to obtain 3D metrics
-                - dice (as implemented by sklearn)
-                - hausdorff distance (as implemented by scipy)
-                - and others
-        - Penumbra match: ratio of prediction that is in penumbra [analysis/voxelwise/penumbra_evaluation.py]
-        
-![Receptive field illustration](illustrations/Receptive_field.png?raw=true "Receptive field")
-    
-- Helper functions handle output of the evaluation [analysis/voxelwise/wrapper_cv]
-    - save function: Define modalities of saving evaluation results
-    - send email notifications upon results or errors 
- 
-### IV. Models
-
-- Tmax threshold model [analysis/voxelwise/vxl_threshold/customThresh.py]
-    - Input: Tmax (channel 0)
-    - Parameters: no inverse relation, no feature scaling
-    - Trained model: obtain best threshold by applying youdens J on the ROC curve obtained by using Tmax as predictor for the label
-    - Pre-fixed threshold: use 6s as fix threshold
-    
-- Campbell Model (from Campbell et al. [^4])
-    - Input: All channels
-    - Parameters: no feature scaling, pre-smoothing applied
-    - Rationale: 
-        - Normalise CBF by contralateral brain
-        - Predict infarcted if under normalised CBF ratio
-    - Threshold can be trained or fixed 
-    
-- Logistic regression (implmented by sklearn)
-    - Input: any number of channels with and without receptive field
-    - Parameters: feature scaling possible, no pre-smoothing
-    
-- xgboost model
-
-
-[^4]: Campbell Bruce C.V., Christensen Søren, Levi Christopher R., Desmond Patricia M., Donnan Geoffrey A., Davis Stephen M., et al. Cerebral Blood Flow Is the Optimal CT Perfusion Parameter for Assessing Infarct Core. Stroke. 2011 Dec 1;42(12):3435–40.
-
-
-### V. Result evaluation
