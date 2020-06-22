@@ -5,7 +5,7 @@ import pandas as pd
 import image_name_config
 from unidecode import unidecode
 import hashlib
-from utils.naming_verification import tight_verify_name, loose_verify_name
+from gsprep.utils.naming_verification import tight_verify_name, loose_verify_name
 
 main_dir = '/Users/julian/temp/VPCT_extraction_test'
 data_dir = os.path.join(main_dir, 'orig')
