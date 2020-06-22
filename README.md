@@ -1,10 +1,17 @@
-# Geneva Stroke Preprocessing - *GSP*
+# Geneva Stroke Preprocessing - *GSprep*
 This repository hosts preprocessing tools for acute stroke imaging. 
 It has been initially created for the Geneva Stroke Dataset (GSD). 
 
 ## How-to
-### GSD Pre-processing Pipeline
+### Installation
 
+Run `python setup.py install`. 
+
+This installs:
+- *GSprep* : as set of preprocessing tools
+- *gsd_pipeline* : the preprocessing pipeline used for the GSD
+
+### GSD Pre-processing Pipeline
 ##### 1. Data Verification
 - pre_verification/find_empty_folders.py : find empty folders in subject directories hinting towards failed exports and save in excel file
 - pre_verification/verify_RAPID37.py : check that all subjects with perfusion CTs have 37 RAPID images (and not 11)
