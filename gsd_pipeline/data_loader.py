@@ -422,7 +422,7 @@ def rescale_data(data_dir, filename = 'data_set.npz'):
     rescaled_ct_inputs = rescale_outliers(ct_inputs, brain_masks)
     print('After outlier scaling', np.mean(ct_inputs[..., 0]), np.std(ct_inputs[..., 0]))
 
-    np.savez_compressed(os.path.join(data_dir, 'rescaled_data_set'),
+    np.savez_compressed(os.path.join(data_dir, 'rescaled_' + filename),
                         params=params,
                         ids=ids,
                         clinical_inputs=clinical_inputs, ct_inputs=rescaled_ct_inputs, ct_lesion_GT=ct_lesion_GT,
