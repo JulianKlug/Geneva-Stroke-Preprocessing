@@ -409,6 +409,19 @@ def standardize_data(data_dir, filename = 'data_set.npz'):
                         clinical_inputs=clinical_inputs, ct_inputs=standardized_ct_inputs, ct_lesion_GT=ct_lesion_GT,
                         mri_inputs=standardized_mri_inputs, mri_lesion_GT=mri_lesion_GT, brain_masks=brain_masks)
 
+def rescale_data(data_dir, filename = 'data_set.npz'):
+    (clinical_inputs, ct_inputs, ct_lesion_GT, mri_inputs, mri_lesion_GT, brain_masks, ids, params) = load_saved_data(data_dir, filename)
+
+    print('Before outlier scaling', np.mean(ct_inputs[..., 0]), np.std(ct_inputs[..., 0]))
+    # correct for outliers that are scaled x10
+    rescaled_ct_inputs = rescale_outliers(ct_inputs, brain_masks)
+    print('After outlier scaling', np.mean(ct_inputs[..., 0]), np.std(ct_inputs[..., 0]))
+
+    np.savez_compressed(os.path.join(data_dir, 'rescaled_data_set'),
+                        params=params,
+                        ids=ids,
+                        clinical_inputs=clinical_inputs, ct_inputs=rescaled_ct_inputs, ct_lesion_GT=ct_lesion_GT,
+                        mri_inputs=mri_inputs, mri_lesion_GT=mri_lesion_GT, brain_masks=brain_masks)
 
 def load_saved_data(data_dir, filename = 'data_set.npz'):
     params = np.load(os.path.join(data_dir, filename), allow_pickle=True)['params']
