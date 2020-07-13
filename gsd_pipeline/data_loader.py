@@ -233,10 +233,10 @@ def load_nifti(main_dir, ct_sequences, label_sequences, mri_sequences, mri_label
     return (ids, load_images(ct_paths, ct_lesion_paths, mri_paths, mri_lesion_paths, brain_mask_paths, ids, high_resolution))
 
 # Save data as compressed numpy array
-def load_and_save_data(save_dir, main_dir, clinical_dir = None, clinical_name = None,
+def load_and_save_data(save_dir, main_dir, filename='data_set', clinical_dir = None, clinical_name = None,
                        ct_sequences = [], label_sequences = [], use_mri_sequences = False,
                        external_memory=False, high_resolution = False, enforce_VOI=True,
-                       use_vessels=False, use_angio=False, use_4d_pct=False):
+                       use_vessels=False, use_angio=False, use_4d_pct=False, use_nc_ct=False):
     """
     Load data
         - Image data (from preprocessed Nifti)
@@ -245,6 +245,7 @@ def load_and_save_data(save_dir, main_dir, clinical_dir = None, clinical_name = 
     Args:
     :param     save_dir : directory to save data_to
     :param     main_dir : directory containing images
+    :param     filename (optional) : output filename
     :param     clinical_dir (optional) : directory containing clinical data (excel)
     :param     ct_sequences (optional, array) : array with names of ct sequences
     :param     label_sequences (optional, array) : array with names of VOI sequences
@@ -254,6 +255,7 @@ def load_and_save_data(save_dir, main_dir, clinical_dir = None, clinical_name = 
     :param     use_vessels (optional, default False): use vessel masks as ct input
     :param     use_angio (optional, default False): use angio CT as ct input
     :param     use_4d_pct (optional, default False): use 4D perfusion CT as input
+    :param     use_nc_ct (optional, default False): use non contrast CT as additional input
 
 
     Returns:
@@ -279,6 +281,9 @@ def load_and_save_data(save_dir, main_dir, clinical_dir = None, clinical_name = 
             ct_sequences = ['wbetted_Angio']
             if high_resolution:
                 ct_sequences = ['betted_Angio']
+
+        if use_nc_ct:
+            ct_sequences.append('wreor_SPC_301mm_Std')
 
     if len(label_sequences) < 1 and enforce_VOI:
         # Import VOI GT with brain mask applied
@@ -336,7 +341,7 @@ def load_and_save_data(save_dir, main_dir, clinical_dir = None, clinical_name = 
         print('Excluded', ids.shape[0] - ct_inputs.shape[0], 'subjects.')
 
     print('Saving a total of', ct_inputs.shape[0], 'subjects.')
-    np.savez_compressed(os.path.join(save_dir, 'data_set'),
+    np.savez_compressed(os.path.join(save_dir, filename),
         params = {'ct_sequences': ct_sequences, 'ct_label_sequences': label_sequences,
                   'mri_sequences': mri_sequences, 'mri_label_sequences': mri_label_sequences},
         ids = ids, included_subjects = included_subjects,
