@@ -5,6 +5,7 @@ import nibabel as nib
 import nipype.interfaces.fsl as fsl
 import tempfile
 import shutil
+import subprocess
 
 
 def ct_brain_extraction(data, working_directory=None, fractional_intensity_threshold = 0.01, save_output = False, fsl_path=None):
@@ -22,6 +23,7 @@ def ct_brain_extraction(data, working_directory=None, fractional_intensity_thres
 
     if fsl_path is not None:
         os.environ["PATH"] += os.pathsep + fsl_path
+    os.environ["FSLOUTPUTTYPE"] = 'NIFTI'
 
     temp_files = []
     if working_directory is None:
@@ -108,12 +110,20 @@ def ct_brain_extraction(data, working_directory=None, fractional_intensity_thres
 
     # Running bet2
     # cli: bet2 "${outfile}" "${outfile}" - f ${intensity} - v
-    btr = fsl.BET()
-    btr.inputs.in_file = output_file
-    btr.inputs.out_file = output_file
-    btr.inputs.frac = fractional_intensity_threshold
-    btr.inputs.output_type = 'NIFTI'
-    btr.run()
+    try:
+        btr = fsl.BET()
+        btr.inputs.in_file = output_file
+        btr.inputs.out_file = output_file
+        btr.inputs.frac = fractional_intensity_threshold
+        btr.inputs.output_type = 'NIFTI'
+        btr.run()
+    except Exception as e:  # sometimes nipype fails to find bet
+        if fsl_path is not None:
+            bet_path = os.path.join(fsl_path, 'bet2')
+        else:
+            bet_path = 'bet2'
+        subprocess.run([bet_path, output_file, output_file, '-f', str(fractional_intensity_threshold)])
+
 
     # Using fslfill to fill in any holes in mask
     # cli: fslmaths "${outfile}" - bin - fillh "${outfile}_Mask"
