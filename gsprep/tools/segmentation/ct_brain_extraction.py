@@ -24,7 +24,7 @@ def ct_brain_extraction(data, working_directory=None, fractional_intensity_thres
 
     if isinstance(data, np.ndarray):
         data_path = os.path.join(working_directory, 'temp_bet_input.nii.gz')
-        data_img = nib.Nifti1Image(data.astype('float64'))
+        data_img = nib.Nifti1Image(data.astype('float64'), affine=None)
         nib.save(data_img, data_path)
         temp_files.append(data_path)
     elif os.path.exists(data):
