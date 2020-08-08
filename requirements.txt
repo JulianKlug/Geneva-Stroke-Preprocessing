@@ -6,3 +6,4 @@ pandas-schema>=0.3.5
 scikit-learn>=0.22.1
 scipy>=1.4.1
 Unidecode>=1.1.1
+nipype
