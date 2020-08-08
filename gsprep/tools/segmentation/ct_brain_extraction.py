@@ -5,8 +5,9 @@ import nibabel as nib
 import nipype.interfaces.fsl as fsl
 import tempfile
 import shutil
+import sys
 
-def ct_brain_extraction(data, working_directory=None, fractional_intensity_threshold = 0.01, save_output = False):
+def ct_brain_extraction(data, working_directory=None, fractional_intensity_threshold = 0.01, save_output = False, fsl_path=None):
     """
     Automatic brain extraction of non contrast head CT images using bet2 by fsl.
     Ref.: Muschelli J, Ullman NL, Mould WA, Vespa P, Hanley DF, Crainiceanu CM. Validated automatic brain extraction of head CT images. NeuroImage. 2015 Jul 1;114:379–85.
@@ -15,8 +16,12 @@ def ct_brain_extraction(data, working_directory=None, fractional_intensity_thres
     :param working_directory: [str] path to directory to use to save temporary files and final output files
     :param fractional_intensity_threshold: fractional intensity threshold (0->1); default=0.01; smaller values give larger brain outline estimates
     :param save_output: [boolean] save or discard output
+    :param fsl_path: [str], Optional path to fsl executable to help nipype find it
     :return: brain_mask, masked_image: np.ndarray
     """
+
+    if fsl_path is not None:
+        sys.path.append(fsl_path)
 
     temp_files = []
     if working_directory is None:
