@@ -3,9 +3,10 @@ import argparse
 import numpy as np
 import nibabel as nib
 import nipype.interfaces.fsl as fsl
+import tempfile
+import shutil
 
-
-def ct_brain_extraction(data, working_directory, fractional_intensity_threshold = 0.01, save_output = False):
+def ct_brain_extraction(data, working_directory=None, fractional_intensity_threshold = 0.01, save_output = False):
     """
     Automatic brain extraction of non contrast head CT images using bet2 by fsl.
     Ref.: Muschelli J, Ullman NL, Mould WA, Vespa P, Hanley DF, Crainiceanu CM. Validated automatic brain extraction of head CT images. NeuroImage. 2015 Jul 1;114:379–85.
@@ -18,8 +19,11 @@ def ct_brain_extraction(data, working_directory, fractional_intensity_threshold 
     """
 
     temp_files = []
+    if working_directory is None:
+        working_directory = tempfile.mkdtemp()
+
     if isinstance(data, np.ndarray):
-        data_path = os.path.join(working_directory, 'temp_bet_input.nii')
+        data_path = os.path.join(working_directory, 'temp_bet_input.nii.gz')
         data_img = nib.Nifti1Image(data.astype('float64'))
         nib.save(data_img, data_path)
         temp_files.append(data_path)
@@ -28,11 +32,12 @@ def ct_brain_extraction(data, working_directory, fractional_intensity_threshold 
     else:
         raise NotImplementedError('Data has to be a path or an np.ndarray')
 
-    output_file = os.path.join(working_directory, 'bet_output.nii')
-    output_mask_file = os.path.join(working_directory, 'bet_output_mask.nii')
+    output_file = os.path.join(working_directory, 'bet_output.nii.gz')
+    output_mask_file = os.path.join(working_directory, 'bet_output_mask.nii.gz')
     if not save_output:
         temp_files.append(output_file)
-    temp_intermediate_file = os.path.join(working_directory, 'temp_intermediate_file.nii')
+        temp_files.append(output_mask_file)
+    temp_intermediate_file = os.path.join(working_directory, 'temp_intermediate_file.nii.gz')
     temp_files.append(temp_intermediate_file)
 
 
@@ -122,9 +127,12 @@ def ct_brain_extraction(data, working_directory, fractional_intensity_threshold 
     brain_mask = nib.load(output_mask_file).get_fdata()
     masked_image = nib.load(output_file).get_fdata()
 
+    # delete temporary files
+    for file in temp_files:
+        os.remove(file)
+
     if not save_output:
-        for file in temp_files:
-            os.remove(file)
+        shutil.rmtree(working_directory)
 
     return brain_mask, masked_image
 
