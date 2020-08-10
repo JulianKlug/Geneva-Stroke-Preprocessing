@@ -59,3 +59,25 @@ def visual_add_center_slice(image, i_subj, i_image, gs, image_id=None):
     plt.imshow(image[:, :, center_z].T, cmap='gray', vmin=0, vmax=1)
     plt.axis('off')
 
+
+if __name__ == '__main__':
+    from gsd_pipeline import data_loader as dl
+    import argparse
+    parser = argparse.ArgumentParser(description='Add core segmentation based on rCBF to the perfusion map dataset')
+    parser.add_argument('data_path')
+    parser.add_argument('-c', '--channel_names', nargs='+',  help='Name of output file', required=False, default=None)
+    parser.add_argument('-o', '--output_dir',  help='Directory to save output', required=False, default=None)
+    args = parser.parse_args()
+
+    (clinical_inputs, ct_inputs, ct_lesion_GT, mri_inputs, mri_lesion_GT, masks, ids, params) = \
+        dl.load_saved_data(os.path.dirname(args.data_path), os.path.basename(args.data_path))
+
+    if args.channel_names is None:
+        args.channel_names = params.item()['ct_sequences']
+    if args.output_dir is None:
+        args.output_dir = os.path.dirname(args.data_path)
+
+    outfile = os.path.basename(args.data_path).split('.')[0] + '_dataset_visualisation'
+
+    visualize_dataset(ct_inputs, args.channel_names, ids, args.output_dir, save_name=outfile)
+
