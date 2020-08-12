@@ -1,8 +1,8 @@
 import os
 import nibabel as nib
 import numpy as np
-from .clinical_data.clinical_data_loader import load_clinical_data
-from .utils.utils import find_max_shape, rescale_outliers
+from gsd_pipeline.clinical_data.clinical_data_loader import load_clinical_data
+from gsd_pipeline.utils.utils import find_max_shape, rescale_outliers
 
 # provided a given directory return list of paths to ct_sequences and lesion_maps
 def get_paths_and_ids(data_dir, ct_sequences, ct_label_sequences, mri_sequences, mri_label_sequences, brain_mask_name):
@@ -364,55 +364,24 @@ def get_subset(data_dir, size, in_file_name='data_set.npz', out_file_name=None, 
         outdir = data_dir
 
     (clinical_inputs, ct_inputs, ct_lesion_GT, mri_inputs, mri_lesion_GT, brain_masks, ids, params) = load_saved_data(data_dir, in_file_name)
-
-    if len(clinical_inputs) > size:
+    if len(clinical_inputs.shape) > 0 and len(clinical_inputs) > size:
         clinical_inputs = clinical_inputs[0:size]
-    if len(ct_inputs) > size:
+    if len(ct_inputs.shape) > 0 and len(ct_inputs) > size:
         ct_inputs = ct_inputs[0:size]
-    if len(ct_lesion_GT) > size:
+    if len(ct_lesion_GT.shape) > 0 and len(ct_lesion_GT) > size:
         ct_lesion_GT = ct_lesion_GT[0:size]
-    if len(mri_inputs) > size:
+    if len(mri_inputs.shape) > 0 and len(mri_inputs) > size:
         mri_inputs = mri_inputs[0:size]
-    if len(mri_lesion_GT) > size:
+    if len(mri_lesion_GT.shape) > 0 and len(mri_lesion_GT) > size:
         mri_lesion_GT = mri_lesion_GT[0:size]
-    if len(brain_masks) > size:
+    if len(brain_masks.shape) > 0 and len(brain_masks) > size:
         brain_masks = brain_masks[0:size]
-    if len(ids) > size:
+    if len(ids.shape) > 0 and len(ids) > size:
         ids = ids[0:size]
 
     dataset = (clinical_inputs, ct_inputs, ct_lesion_GT, mri_inputs, mri_lesion_GT, brain_masks, ids, params)
     save_dataset(dataset, outdir, out_file_name)
 
-def standardize_data(data_dir, filename = 'data_set.npz'):
-    (clinical_inputs, ct_inputs, ct_lesion_GT, mri_inputs, mri_lesion_GT, brain_masks, ids, params) = load_saved_data(data_dir, filename)
-
-    standardize = lambda x: (x - np.mean(x)) / np.std(x)
-
-    print('Before outlier scaling', np.mean(ct_inputs[..., 0]), np.std(ct_inputs[..., 0]))
-    # correct for outliers that are scaled x10
-    ct_inputs = rescale_outliers(ct_inputs, brain_masks)
-    print('After outlier scaling', np.mean(ct_inputs[..., 0]), np.std(ct_inputs[..., 0]))
-
-
-    standardized_ct_inputs = np.empty(ct_inputs.shape)
-    for c in range(ct_inputs.shape[-1]):
-
-        standardized_ct_inputs[..., c] = standardize(ct_inputs[..., c])
-        print('CT channel', c, np.mean(standardized_ct_inputs[..., c]), np.std(standardized_ct_inputs[..., c]))
-
-    if len(mri_inputs) != 0:
-        standardized_mri_inputs = np.empty(mri_inputs.shape)
-        for c in range(mri_inputs.shape[-1]):
-            standardized_mri_inputs[..., c] = standardize(mri_inputs[..., c])
-            print('MRI channel', c, np.mean(standardized_mri_inputs[..., c]), np.std(standardized_mri_inputs[..., c]))
-    else:
-        standardized_mri_inputs = mri_inputs
-
-    np.savez_compressed(os.path.join(data_dir, 'standardized_data_set'),
-                        params=params,
-                        ids=ids,
-                        clinical_inputs=clinical_inputs, ct_inputs=standardized_ct_inputs, ct_lesion_GT=ct_lesion_GT,
-                        mri_inputs=standardized_mri_inputs, mri_lesion_GT=mri_lesion_GT, brain_masks=brain_masks)
 
 def rescale_data(data_dir, filename = 'data_set.npz'):
     (clinical_inputs, ct_inputs, ct_lesion_GT, mri_inputs, mri_lesion_GT, brain_masks, ids, params) = load_saved_data(data_dir, filename)
@@ -452,3 +421,5 @@ def load_saved_data(data_dir, filename = 'data_set.npz'):
     print(ids.shape[0] - ct_inputs.shape[0], 'subjects had been excluded.')
 
     return (clinical_inputs, ct_inputs, ct_lesion_GT, mri_inputs, mri_lesion_GT, brain_masks, ids, params)
+
+get_subset("/Users/julian/temp/perfusion_data_sets/isles_dataset", 10, in_file_name="scaled_standardized_isles_data_set_with_core.npz")
