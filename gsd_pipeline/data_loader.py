@@ -421,5 +421,3 @@ def load_saved_data(data_dir, filename = 'data_set.npz'):
     print(ids.shape[0] - ct_inputs.shape[0], 'subjects had been excluded.')
 
     return (clinical_inputs, ct_inputs, ct_lesion_GT, mri_inputs, mri_lesion_GT, brain_masks, ids, params)
-
-get_subset("/Users/julian/temp/perfusion_data_sets/isles_dataset", 10, in_file_name="scaled_standardized_isles_data_set_with_core.npz")
