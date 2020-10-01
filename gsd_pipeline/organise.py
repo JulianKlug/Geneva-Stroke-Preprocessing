@@ -7,15 +7,15 @@ from unidecode import unidecode
 import hashlib
 from gsprep.utils.naming_verification import tight_verify_name, loose_verify_name
 
-main_dir = '/Users/julian/temp/VPCT_extraction_test'
-data_dir = os.path.join(main_dir, 'orig')
-output_dir = os.path.join(main_dir, 'extracted')
+main_dir = '/Volumes/stroke_hdd1/stroke_db/2017/imaging_data/'
+data_dir = os.path.join(main_dir, 'included')
+output_dir = os.path.join(main_dir, 'extracted_included')
 enforce_VOI = True
-copy = True  # if set to false, this script will not attempt the final step of copying the files to reorganise (for debugging only)
+copy = False  # if set to false, this script will not attempt the final step of copying the files to reorganise (for debugging only)
 include_DWI = False
 include_angio = False
-include_pCT = True
-enforce_RAPID = False
+include_pCT = False
+enforce_RAPID = True
 spc_ct_sequences = image_name_config.spc_ct_sequences
 pct_sequences = image_name_config.pct_sequences
 ct_perf_sequence_names = image_name_config.ct_perf_sequence_names
@@ -23,7 +23,7 @@ additional_ct_channels = image_name_config.angio_ct_sequences
 mri_sequences = image_name_config.mri_sequences
 alternative_mri_sequences = image_name_config.alternative_mri_sequences
 additional_mri_channels = image_name_config.adc_mri_channel + image_name_config.trace_mri_channel
-subject_name_seperator = ' '
+subject_name_seperators = [' ', '_']
 error_log_columns = ['folder', 'error', 'exclusion', 'message']
 move_log_columns = ['folder', 'initial_path', 'new_path']
 
@@ -38,7 +38,8 @@ def get_subject_info(dir):
 
     # verify that name on folder corresponds
     folder = os.path.basename(dir)
-    subject_name_from_folder = '_'.join(unidecode(folder[:re.search("\d", folder).start() - 1].upper()).split(subject_name_seperator))
+    subject_name_from_folder1 = '_'.join(unidecode(folder[:re.search("\d", folder).start() - 1].upper()).split(subject_name_seperators[0]))
+    subject_name_from_folder2 = '_'.join(unidecode(folder[:re.search("\d", folder).start() - 1].upper()).split(subject_name_seperators[1]))
 
     modality_0 = [o for o in os.listdir(dir)
                     if os.path.isdir(os.path.join(dir,o))][0]
@@ -67,10 +68,11 @@ def get_subject_info(dir):
         attached_full_name = '_'.join(flatten_string(last_name).split(' ')) + '_' + flatten_string(first_name)
         patient_birth_date = dcm.PatientBirthDate
 
-        if subject_name_from_folder != full_name and subject_name_from_folder != attached_full_name :
+        if subject_name_from_folder1 != full_name and subject_name_from_folder1 != attached_full_name \
+            and subject_name_from_folder2 != full_name and subject_name_from_folder2 != attached_full_name :
             print(first_name, last_name, full_name, attached_full_name)
             raise Exception('Names do not match between folder name and name in dicom',
-                subject_name_from_folder, full_name)
+                subject_name_from_folder1, full_name)
 
         return (last_name, first_name, patient_birth_date)
 

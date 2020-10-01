@@ -4,8 +4,6 @@ import os
 default_parameters = [
     'age',
     'sex',
-    'height',
-    'weight',
     # timing parameters
     'onset_known',
     # parameters needed to calculate onset to ct
@@ -26,10 +24,7 @@ default_parameters = [
     # ATCDs
     'stroke_pre',
     'tia_pre',
-    'ich_pre',
-    # Treatment
-    'treat_antipatelet',
-    'treat_anticoagulant'
+    'ich_pre'
 ]
 
 def select_clinical_parameters(clinical_data_path, sheet_name='Sheet1', parameters=default_parameters, save_selected=True):
