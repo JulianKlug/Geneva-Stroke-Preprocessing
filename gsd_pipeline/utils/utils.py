@@ -65,3 +65,18 @@ def standardise(imgX, clinX):
     else:
         rescaled_clinX = clinX
     return rescaled_imgX, rescaled_clinX
+
+
+def pad_to_shape(array: np.ndarray, shape: tuple, constant_values=0):
+    top_pad = np.floor((shape[0] - array.shape[0]) / 2).astype(int)
+    bottom_pad = np.ceil((shape[0] - array.shape[0]) / 2).astype(int)
+    right_pad = np.ceil((shape[1] - array.shape[1]) / 2).astype(int)
+    left_pad = np.floor((shape[1] - array.shape[1]) / 2).astype(int)
+    z0 = np.ceil((shape[2] - array.shape[2]) / 2).astype(int)
+    z1 = np.floor((shape[2] - array.shape[2]) / 2).astype(int)
+    if len(array.shape) == 3:
+        return np.copy(np.pad(array, ((top_pad, bottom_pad), (left_pad, right_pad), (z0, z1)), mode='constant',
+                          constant_values=constant_values))
+    if len(array.shape) == 4:
+        return np.copy(np.pad(array, ((top_pad, bottom_pad), (left_pad, right_pad), (z0, z1), (0, 0)), mode='constant',
+                          constant_values=constant_values))

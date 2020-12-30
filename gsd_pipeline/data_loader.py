@@ -154,7 +154,7 @@ def load_images(ct_paths, ct_lesion_paths, mri_paths, mri_lesion_paths, brain_ma
         ct_channels = ct_paths[subject]
         for c in range(ct_n_c):
             image = nib.load(ct_channels[c])
-            image_data = image.get_data()
+            image_data = image.get_fdata()
             image_data = rectify_shape(image_data)
 
             if ct_inputs[subject, :, :, :, c].shape != image_data.shape:
@@ -174,7 +174,7 @@ def load_images(ct_paths, ct_lesion_paths, mri_paths, mri_lesion_paths, brain_ma
             mri_channels = mri_paths[subject]
             for k in range(mri_n_c):
                 image = nib.load(mri_channels[k])
-                image_data = image.get_data()
+                image_data = image.get_fdata()
                 image_data = rectify_shape(image_data)
 
                 if mri_inputs[subject, :, :, :, k].shape != image_data.shape:
@@ -421,3 +421,6 @@ def load_saved_data(data_dir, filename = 'data_set.npz'):
     print(ids.shape[0] - ct_inputs.shape[0], 'subjects had been excluded.')
 
     return (clinical_inputs, ct_inputs, ct_lesion_GT, mri_inputs, mri_lesion_GT, brain_masks, ids, params)
+
+# data_dir = '/media/miplab-nas2/Data2/klug/geneva_stroke_dataset/working_data/hd_pmaps_all_2016_2017'
+# rescale_data(data_dir, filename='hd_pmaps_all_2016_2017_data_set.npz')
