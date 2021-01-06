@@ -422,5 +422,28 @@ def load_saved_data(data_dir, filename = 'data_set.npz'):
 
     return (clinical_inputs, ct_inputs, ct_lesion_GT, mri_inputs, mri_lesion_GT, brain_masks, ids, params)
 
-# data_dir = '/media/miplab-nas2/Data2/klug/geneva_stroke_dataset/working_data/hd_pmaps_all_2016_2017'
-# rescale_data(data_dir, filename='hd_pmaps_all_2016_2017_data_set.npz')
+def load_saved_data_at_index(index:int, data_dir, filename = 'data_set.npz'):
+    params = np.load(os.path.join(data_dir, filename), allow_pickle=True)['params']
+    ids = np.load(os.path.join(data_dir, filename), allow_pickle=True)['ids'][index]
+    ct_inputs = np.load(os.path.join(data_dir, filename), allow_pickle=True)['ct_inputs'][index]
+
+    try:
+        clinical_inputs = np.load(os.path.join(data_dir, filename), allow_pickle=True)['clinical_inputs'][index]
+    except:
+        clinical_inputs = []
+    try:
+        ct_lesion_GT = np.load(os.path.join(data_dir, filename), allow_pickle=True)['ct_lesion_GT'][index]
+    except:
+        ct_lesion_GT = np.load(os.path.join(data_dir, filename), allow_pickle=True)['lesion_GT'][index]
+
+    try:
+        mri_inputs = np.load(os.path.join(data_dir, filename), allow_pickle=True)['mri_inputs'][index]
+        mri_lesion_GT = np.load(os.path.join(data_dir, filename), allow_pickle=True)['mri_lesion_GT'][index]
+    except:
+        mri_inputs = []
+        mri_lesion_GT = []
+
+    brain_masks = np.load(os.path.join(data_dir, filename), allow_pickle=True)['brain_masks'][index]
+
+    return (clinical_inputs, ct_inputs, ct_lesion_GT, mri_inputs, mri_lesion_GT, brain_masks, ids, params)
+

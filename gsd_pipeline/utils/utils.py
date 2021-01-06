@@ -75,8 +75,12 @@ def pad_to_shape(array: np.ndarray, shape: tuple, constant_values=0):
     z0 = np.ceil((shape[2] - array.shape[2]) / 2).astype(int)
     z1 = np.floor((shape[2] - array.shape[2]) / 2).astype(int)
     if len(array.shape) == 3:
-        return np.copy(np.pad(array, ((top_pad, bottom_pad), (left_pad, right_pad), (z0, z1)), mode='constant',
-                          constant_values=constant_values))
+        # return np.copy(np.pad(array, ((top_pad, bottom_pad), (left_pad, right_pad), (z0, z1)), mode='constant',
+        #                   constant_values=constant_values))
+        return np.pad(array, ((top_pad, bottom_pad), (left_pad, right_pad), (z0, z1)), mode='constant',
+                          constant_values=constant_values)
     if len(array.shape) == 4:
-        return np.copy(np.pad(array, ((top_pad, bottom_pad), (left_pad, right_pad), (z0, z1), (0, 0)), mode='constant',
-                          constant_values=constant_values))
+        # return np.copy(np.pad(array, ((top_pad, bottom_pad), (left_pad, right_pad), (z0, z1), (0, 0)), mode='constant',
+        #                   constant_values=constant_values))
+        return np.pad(array, ((top_pad, bottom_pad), (left_pad, right_pad), (z0, z1), (0, 0)), mode='constant',
+                          constant_values=constant_values)
