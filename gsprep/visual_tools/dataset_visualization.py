@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from matplotlib import gridspec
 import numpy as np
 
-def visualize_dataset(data, channel_names, subject_ids, save_dir, save_name='dataset_visualisation'):
+def visualize_dataset(data, channel_names, subject_ids, save_dir, gt_data=None, save_name='dataset_visualisation'):
     '''
     Display dataset
     :param data: image data of dimensions (n_subj, x, y, z, c)
@@ -18,7 +18,7 @@ def visualize_dataset(data, channel_names, subject_ids, save_dir, save_name='dat
         raise Exception(f'Please provide names for all channels; {n_c} vs {len(channel_names)}')
 
     plt.switch_backend('agg')
-    ncol = n_c + 1
+    ncol = n_c + 2
     nrow = n_subj + 2
     figure = plt.figure(figsize=(2*(ncol+1) + 1, 2*(nrow+1)))
     gs = gridspec.GridSpec(nrow, ncol,
@@ -38,6 +38,9 @@ def visualize_dataset(data, channel_names, subject_ids, save_dir, save_name='dat
 
         for channel in range(n_c):
             visual_add_center_slice(subj_data[..., channel], subj, channel + 1, gs, image_id=None)
+
+        if gt_data is not None:
+            visual_add_center_slice(gt_data[subj], subj, ncol - 1, gs, image_id=None)
 
     plt.ioff()
     plt.switch_backend('agg')
@@ -79,5 +82,5 @@ if __name__ == '__main__':
 
     outfile = os.path.basename(args.data_path).split('.')[0] + '_dataset_visualisation'
 
-    visualize_dataset(ct_inputs, args.channel_names, ids, args.output_dir, save_name=outfile)
+    visualize_dataset(ct_inputs, args.channel_names, ids, args.output_dir, gt_data=ct_lesion_GT, save_name=outfile)
 
