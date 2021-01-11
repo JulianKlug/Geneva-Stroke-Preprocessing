@@ -31,4 +31,3 @@ def add_noise_to_channel(ct_dataset:[str, np.ndarray], channel_index=5, outfile=
 
     return ct_inputs
 
-add_noise_to_channel('/Users/julian/temp/rescaled_with_ncct_dataset_with_core.npz')
