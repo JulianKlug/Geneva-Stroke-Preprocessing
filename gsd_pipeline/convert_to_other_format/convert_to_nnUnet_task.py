@@ -11,8 +11,9 @@ def get_identifiers_from_splitted_files(folder: str):
     return uniques
 
 def convert_to_nnUnet_task(path_to_gsd_dataset: str, path_to_new_dataset_main_dir: str, channel_names: list = []):
-    path_to_new_dataset_dir = os.path.join(path_to_new_dataset_main_dir, 'nnUNet_raw_data')
+    path_to_new_dataset_dir = os.path.join(path_to_new_dataset_main_dir, 'nnUNet_raw_data', 'Task101_GSD')
     new_dataset_prepro_dir = os.path.join(path_to_new_dataset_main_dir, 'nnUNet_prepro_data')
+    new_dataset_prepro_dir = os.path.join(path_to_new_dataset_main_dir, 'results')
     mmkdir(path_to_new_dataset_main_dir)
     mmkdir(path_to_new_dataset_dir)
     mmkdir(new_dataset_prepro_dir)
