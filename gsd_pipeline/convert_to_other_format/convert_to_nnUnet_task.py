@@ -11,11 +11,13 @@ def get_identifiers_from_splitted_files(folder: str):
     return uniques
 
 def convert_to_nnUnet_task(path_to_gsd_dataset: str, path_to_new_dataset_main_dir: str, channel_names: list = []):
-    path_to_new_dataset_dir = os.path.join(path_to_new_dataset_main_dir, 'nnUNet_raw_data', 'Task101_GSD')
+    path_to_new_dataset_dir = os.path.join(path_to_new_dataset_main_dir, 'nnUNet_raw_data')
+    path_to_new_dataset_task_dir = os.path.join(path_to_new_dataset_dir, 'Task101_GSD')
     new_dataset_prepro_dir = os.path.join(path_to_new_dataset_main_dir, 'nnUNet_prepro_data')
     new_dataset_prepro_dir = os.path.join(path_to_new_dataset_main_dir, 'results')
     mmkdir(path_to_new_dataset_main_dir)
     mmkdir(path_to_new_dataset_dir)
+    mmkdir(path_to_new_dataset_task_dir)
     mmkdir(new_dataset_prepro_dir)
 
 
@@ -32,16 +34,16 @@ def convert_to_nnUnet_task(path_to_gsd_dataset: str, path_to_new_dataset_main_di
     print('Loading a total of', ct_inputs.shape[0], 'subjects.')
     print('Sequences used:', params)
 
-    target_imagesTrain = os.path.join(path_to_new_dataset_dir, "imagesTr")
+    target_imagesTrain = os.path.join(path_to_new_dataset_task_dir, "imagesTr")
     # target_imagesTs = join(target_base, "imagesTs")
     # target_labelsTs = join(target_base, "labelsTs")
-    target_labelsTrain = os.path.join(path_to_new_dataset_dir, "labelsTr")
+    target_labelsTrain = os.path.join(path_to_new_dataset_task_dir, "labelsTr")
 
-    mmkdir(path_to_new_dataset_dir)
+    mmkdir(path_to_new_dataset_task_dir)
     mmkdir(target_imagesTrain)
     mmkdir(target_labelsTrain)
 
-    with open(os.path.join(path_to_new_dataset_dir, 'params.json'), 'w') as fp:
+    with open(os.path.join(path_to_new_dataset_task_dir, 'params.json'), 'w') as fp:
         json.dump(params, fp, indent=4)
 
     n_channels = ct_inputs.shape[-1]
@@ -90,7 +92,7 @@ def convert_to_nnUnet_task(path_to_gsd_dataset: str, path_to_new_dataset_main_di
         in train_identifiers]
     json_dict['test'] = ["./imagesTs/%s.nii.gz" % i for i in test_identifiers]
 
-    save_json(json_dict, os.path.join(path_to_new_dataset_dir, 'dataset.json'))
+    save_json(json_dict, os.path.join(path_to_new_dataset_task_dir, 'dataset.json'))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Convert GSD dataset to nnUnet dataset')
