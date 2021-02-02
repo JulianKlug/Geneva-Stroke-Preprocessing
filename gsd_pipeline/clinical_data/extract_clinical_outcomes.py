@@ -46,7 +46,7 @@ def extract_clinical_outcomes(patient_id_path, patient_info_path, id_sheet = 'Sh
     output_df['pid'] = patient_id_df['anonymised_id']
 
     output_df = output_df[
-        ['patient_identifier', 'combined_id', 'combined_id_match', 'Nom', 'Prénom', 'birth_date', 'anonymised_id', 'pid', 'id_hospital_case']
+        ['patient_identifier', 'combined_id', 'combined_id_match', 'Nom', 'Prénom', 'birth_date', 'anonymised_id', 'pid', 'id_hospital_case', 'onset_time']
         + default_outcomes
     ]
 
@@ -59,8 +59,8 @@ def extract_clinical_outcomes(patient_id_path, patient_info_path, id_sheet = 'Sh
         outfile_name = 'anon_' + outfile_name
 
     output_df.to_excel(os.path.join(os.path.dirname(patient_info_path), outfile_name))
-
-extract_clinical_outcomes(
-    '/Users/jk1/temp/clinical_data_prepro/anonymisation_key_pCT_2016_2017.xlsx',
-    '/Users/jk1/temp/clinical_data_prepro/190419_Données 2015-16-17.xlsx', id_sheet = 'Sheet1', info_sheet = 'Sheet1 (2)',
-    anonymise=False)
+#
+# extract_clinical_outcomes(
+#     '/Users/jk1/temp/clinical_data_prepro/anonymisation_key_pCT_2016_2017.xlsx',
+#     '/Users/jk1/temp/clinical_data_prepro/190419_Données 2015-16-17.xlsx', id_sheet = 'Sheet1', info_sheet = 'Sheet1 (2)',
+#     anonymise=False)
