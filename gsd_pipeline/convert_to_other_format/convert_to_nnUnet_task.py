@@ -4,21 +4,22 @@ import nibabel as nib
 import numpy as np
 from tqdm import tqdm
 from gsd_pipeline.utils.file_operations import subfiles, save_json, mmkdir
-
+from sklearn.model_selection import train_test_split
 
 def get_identifiers_from_splitted_files(folder: str):
     uniques = np.unique([i[:-12] for i in subfiles(folder, suffix='.nii.gz', join=False)])
     return uniques
 
-def convert_to_nnUnet_task(path_to_gsd_dataset: str, path_to_new_dataset_main_dir: str, channel_names: list = []):
+def convert_to_nnUnet_task(path_to_gsd_dataset: str, path_to_new_dataset_main_dir: str, channel_names: list = [], perform_train_test_split:bool = True):
     path_to_new_dataset_dir = os.path.join(path_to_new_dataset_main_dir, 'nnUNet_raw_data')
     path_to_new_dataset_task_dir = os.path.join(path_to_new_dataset_dir, 'Task101_GSD')
     new_dataset_prepro_dir = os.path.join(path_to_new_dataset_main_dir, 'nnUNet_prepro_data')
-    new_dataset_prepro_dir = os.path.join(path_to_new_dataset_main_dir, 'results')
+    new_dataset_results_dir = os.path.join(path_to_new_dataset_main_dir, 'results')
     mmkdir(path_to_new_dataset_main_dir)
     mmkdir(path_to_new_dataset_dir)
     mmkdir(path_to_new_dataset_task_dir)
     mmkdir(new_dataset_prepro_dir)
+    mmkdir(new_dataset_results_dir)
 
 
     params = np.load(path_to_gsd_dataset, allow_pickle=True)['params'].item()
@@ -35,13 +36,15 @@ def convert_to_nnUnet_task(path_to_gsd_dataset: str, path_to_new_dataset_main_di
     print('Sequences used:', params)
 
     target_imagesTrain = os.path.join(path_to_new_dataset_task_dir, "imagesTr")
-    # target_imagesTs = join(target_base, "imagesTs")
-    # target_labelsTs = join(target_base, "labelsTs")
+    target_imagesTest = os.path.join(path_to_new_dataset_task_dir, "imagesTs")
+    target_labelsTest = os.path.join(path_to_new_dataset_task_dir, "labelsTs")
     target_labelsTrain = os.path.join(path_to_new_dataset_task_dir, "labelsTr")
 
     mmkdir(path_to_new_dataset_task_dir)
     mmkdir(target_imagesTrain)
     mmkdir(target_labelsTrain)
+    mmkdir(target_imagesTest)
+    mmkdir(target_labelsTest)
 
     with open(os.path.join(path_to_new_dataset_task_dir, 'params.json'), 'w') as fp:
         json.dump(params, fp, indent=4)
@@ -54,7 +57,12 @@ def convert_to_nnUnet_task(path_to_gsd_dataset: str, path_to_new_dataset_main_di
         else:
             raise Exception('Please provide channel names, as those provided in GSD parameters are insufficient')
 
-    for subj_idx, id in enumerate(tqdm(ids)):
+    if perform_train_test_split:
+        train_ids, test_ids = train_test_split(ids, test_size=0.33, random_state=42)
+    else:
+        train_ids = ids
+
+    for subj_idx, id in enumerate(tqdm(train_ids)):
         for channel in range(n_channels):
             subj_pct_channel_img = nib.Nifti1Image(ct_inputs[subj_idx, ..., channel], np.eye(4))
             nib.save(subj_pct_channel_img, os.path.join(target_imagesTrain, f'{id}_{channel:04d}.nii.gz'))
@@ -64,12 +72,19 @@ def convert_to_nnUnet_task(path_to_gsd_dataset: str, path_to_new_dataset_main_di
 
     train_identifiers = get_identifiers_from_splitted_files(target_imagesTrain)
 
-    # if imagesTs_dir is not None:
-    #     test_identifiers = get_identifiers_from_splitted_files(imagesTs_dir)
-    # else:
-    #     test_identifiers = []
+    if perform_train_test_split:
+        for subj_idx, id in enumerate(tqdm(test_ids)):
+            for channel in range(n_channels):
+                subj_pct_channel_img = nib.Nifti1Image(ct_inputs[subj_idx, ..., channel], np.eye(4))
+                nib.save(subj_pct_channel_img, os.path.join(target_imagesTest, f'{id}_{channel:04d}.nii.gz'))
 
-    test_identifiers = []
+            subj_lesion_img = nib.Nifti1Image(ct_lesion_GT[subj_idx], np.eye(4))
+            nib.save(subj_lesion_img, os.path.join(target_labelsTest, f'{id}.nii.gz'))
+
+        test_identifiers = get_identifiers_from_splitted_files(target_imagesTest)
+    else:
+        test_identifiers = []
+
 
     # generate dataset json
     json_dict = {}
@@ -86,7 +101,7 @@ def convert_to_nnUnet_task(path_to_gsd_dataset: str, path_to_new_dataset_main_di
      }
 
     json_dict['numTraining'] = len(train_identifiers)
-    json_dict['numTest'] = []
+    json_dict['numTest'] = len(test_identifiers)
     json_dict['training'] = [
         {'image': "./imagesTr/%s.nii.gz" % i, "label": "./labelsTr/%s.nii.gz" % i} for i
         in train_identifiers]
@@ -98,6 +113,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Convert GSD dataset to nnUnet dataset')
     parser.add_argument('gsd_data_path')
     parser.add_argument('new_data_path')
+    parser.add_argument('-c', '--channels',  nargs='+', help='Name of channels', required=False, default=[])
 
     args = parser.parse_args()
-    convert_to_nnUnet_task(args.gsd_data_path, args.new_data_path)
+    convert_to_nnUnet_task(args.gsd_data_path, args.new_data_path, channel_names=args.channels)
