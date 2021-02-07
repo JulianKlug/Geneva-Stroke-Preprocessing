@@ -283,7 +283,10 @@ def load_and_save_data(save_dir, main_dir, filename='data_set', clinical_dir = N
                 ct_sequences = ['betted_Angio']
 
         if use_nc_ct:
-            ct_sequences.append('wreor_SPC_301mm_Std')
+            ncct_sequence = 'wreor_SPC_301mm_Std'
+            if high_resolution:
+                ncct_sequence = 'reor_SPC_301mm_Std'
+            ct_sequences.append(ncct_sequence)
 
     if len(label_sequences) < 1 and enforce_VOI:
         # Import VOI GT with brain mask applied
