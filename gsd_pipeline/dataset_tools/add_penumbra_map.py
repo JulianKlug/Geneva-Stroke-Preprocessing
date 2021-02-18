@@ -58,7 +58,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Add penumbra segmentation based on Tmax > 6s to the perfusion map dataset')
     parser.add_argument('data_path')
     parser.add_argument('-o', '--outfile',  help='Name of output file', required=False, default=None)
-    parser.add_argument('-t', '--tmax_channel',  help='Tmax Channel index in dataset', required=False, default=1)
+    parser.add_argument('-t', '--tmax_channel',  help='Tmax Channel index in dataset', required=False, default=0)
     parser.add_argument('-oh', '--one_hot_encode', action='store_true', default=False, required=False)
 
     args = parser.parse_args()

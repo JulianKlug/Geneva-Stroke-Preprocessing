@@ -44,5 +44,3 @@ def downsample_dataset_to_shape(data_dir, target_shape: tuple, filename = 'data_
                np.array(final_brain_masks), ids, params)
 
     save_dataset(dataset, data_dir, f'shape{target_shape[0]}x{target_shape[1]}x{target_shape[2]}_' + filename)
-
-
