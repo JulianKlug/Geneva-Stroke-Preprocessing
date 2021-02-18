@@ -135,6 +135,9 @@ After running the whole CT and MRI preprocessing, run these steps again with the
 - mask_lesions: with high_resolution = True  
 - binarize_lesions: with high_resolution = True
 
+Some images may need additional field of view adjustment, as image dimensions may not match.
+- gsd_pipeline/utils/reset_img_size_and_fov.ipynb : tool and guide to adjust fov
+
 #### Requirements
 
 - matlab

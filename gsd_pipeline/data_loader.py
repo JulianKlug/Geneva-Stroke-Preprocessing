@@ -389,6 +389,8 @@ def get_subset(data_dir, size, in_file_name='data_set.npz', out_file_name=None, 
 def rescale_data(data_dir, filename = 'data_set.npz'):
     (clinical_inputs, ct_inputs, ct_lesion_GT, mri_inputs, mri_lesion_GT, brain_masks, ids, params) = load_saved_data(data_dir, filename)
 
+    brain_masks = brain_masks.astype(int)
+
     print('Before outlier scaling', np.mean(ct_inputs[..., 0]), np.std(ct_inputs[..., 0]))
     # correct for outliers that are scaled x10
     rescaled_ct_inputs = rescale_outliers(ct_inputs, brain_masks)
@@ -449,4 +451,3 @@ def load_saved_data_at_index(index:int, data_dir, filename = 'data_set.npz'):
     brain_masks = np.load(os.path.join(data_dir, filename), allow_pickle=True)['brain_masks'][index]
 
     return (clinical_inputs, ct_inputs, ct_lesion_GT, mri_inputs, mri_lesion_GT, brain_masks, ids, params)
-
