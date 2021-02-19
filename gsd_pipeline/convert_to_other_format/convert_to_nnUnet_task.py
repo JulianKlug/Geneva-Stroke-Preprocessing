@@ -57,29 +57,32 @@ def convert_to_nnUnet_task(path_to_gsd_dataset: str, path_to_new_dataset_main_di
         else:
             raise Exception('Please provide channel names, as those provided in GSD parameters are insufficient')
 
+    all_subject_indices = list(range(len(ids)))
     if perform_train_test_split:
-        train_ids, test_ids = train_test_split(ids, test_size=0.33, random_state=42)
+        train_indices, test_indices = train_test_split(all_subject_indices, test_size=0.33, random_state=42)
     else:
-        train_ids = ids
+        train_indices = all_subject_indices
 
-    for subj_idx, id in enumerate(tqdm(train_ids)):
+    for subj_index in (tqdm(train_indices)):
+        subj_id = ids[subj_index]
         for channel in range(n_channels):
-            subj_pct_channel_img = nib.Nifti1Image(ct_inputs[subj_idx, ..., channel], np.eye(4))
-            nib.save(subj_pct_channel_img, os.path.join(target_imagesTrain, f'{id}_{channel:04d}.nii.gz'))
+            subj_pct_channel_img = nib.Nifti1Image(ct_inputs[subj_index, ..., channel], np.eye(4))
+            nib.save(subj_pct_channel_img, os.path.join(target_imagesTrain, f'{subj_id}_{channel:04d}.nii.gz'))
 
-        subj_lesion_img = nib.Nifti1Image(ct_lesion_GT[subj_idx], np.eye(4))
-        nib.save(subj_lesion_img, os.path.join(target_labelsTrain, f'{id}.nii.gz'))
+        subj_lesion_img = nib.Nifti1Image(ct_lesion_GT[subj_index], np.eye(4))
+        nib.save(subj_lesion_img, os.path.join(target_labelsTrain, f'{subj_id}.nii.gz'))
 
     train_identifiers = get_identifiers_from_splitted_files(target_imagesTrain)
 
     if perform_train_test_split:
-        for subj_idx, id in enumerate(tqdm(test_ids)):
+        for subj_index in tqdm(test_indices):
+            subj_id = ids[subj_index]
             for channel in range(n_channels):
-                subj_pct_channel_img = nib.Nifti1Image(ct_inputs[subj_idx, ..., channel], np.eye(4))
-                nib.save(subj_pct_channel_img, os.path.join(target_imagesTest, f'{id}_{channel:04d}.nii.gz'))
+                subj_pct_channel_img = nib.Nifti1Image(ct_inputs[subj_index, ..., channel], np.eye(4))
+                nib.save(subj_pct_channel_img, os.path.join(target_imagesTest, f'{subj_id}_{channel:04d}.nii.gz'))
 
-            subj_lesion_img = nib.Nifti1Image(ct_lesion_GT[subj_idx], np.eye(4))
-            nib.save(subj_lesion_img, os.path.join(target_labelsTest, f'{id}.nii.gz'))
+            subj_lesion_img = nib.Nifti1Image(ct_lesion_GT[subj_index], np.eye(4))
+            nib.save(subj_lesion_img, os.path.join(target_labelsTest, f'{subj_id}.nii.gz'))
 
         test_identifiers = get_identifiers_from_splitted_files(target_imagesTest)
     else:
@@ -108,6 +111,7 @@ def convert_to_nnUnet_task(path_to_gsd_dataset: str, path_to_new_dataset_main_di
     json_dict['test'] = ["./imagesTs/%s.nii.gz" % i for i in test_identifiers]
 
     save_json(json_dict, os.path.join(path_to_new_dataset_task_dir, 'dataset.json'))
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Convert GSD dataset to nnUnet dataset')
