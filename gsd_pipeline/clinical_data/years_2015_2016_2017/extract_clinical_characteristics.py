@@ -71,6 +71,6 @@ def extract_clinical_characteristics(patient_id_path, patient_info_path, id_shee
     output_df.to_excel(os.path.join(os.path.dirname(patient_info_path), outfile_name))
 
 extract_clinical_characteristics(
-    '/Users/jk1/temp/clinical_data_prepro/anonymisation_key_2016_2017.xlsx',
+    '/Users/jk1/temp/clinical_data_prepro/anonymisation_key_pCT_2016_2017.xlsx',
     '/Users/jk1/temp/clinical_data_prepro/190419_Données 2015-16-17.xlsx', id_sheet = 'Sheet1', info_sheet = 'Sheet1 (2)',
     anonymise=True)

@@ -1,7 +1,7 @@
 import os
 import nibabel as nib
 import numpy as np
-from gsd_pipeline.clinical_data import load_clinical_data
+from gsd_pipeline.clinical_data.years_2015_2016_2017.clinical_data_loader import load_clinical_data
 from gsd_pipeline.utils.utils import find_max_shape, rescale_outliers
 
 # provided a given directory return list of paths to ct_sequences and lesion_maps

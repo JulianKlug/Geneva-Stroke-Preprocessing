@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
-from gsd_pipeline.clinical_data import input_parameters, final_parameters
+from gsd_pipeline.clinical_data.years_2015_2016_2017 import input_parameters, final_parameters
 
 INPUT_PARAMETERS = input_parameters.parameters
 input_schema = input_parameters.validation_schema
