@@ -39,7 +39,7 @@ def visualize_dataset(data, channel_names, subject_ids, save_dir, gt_data=None, 
         for channel in range(n_c):
             visual_add_center_slice(subj_data[..., channel], subj, channel + 1, gs, image_id=None)
 
-        if gt_data is not None:
+        if gt_data is not None and gt_data.size > 0:
             visual_add_center_slice(gt_data[subj], subj, ncol - 1, gs, image_id=None)
 
     plt.ioff()
