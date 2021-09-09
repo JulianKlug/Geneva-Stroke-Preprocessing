@@ -19,7 +19,7 @@ default_outcomes = [
 ]
 
 
-def extract_clinical_outcomes(patient_id_path, patient_info_path, id_sheet = 'Sheet1', info_sheet = 'Export cases registered in.', anonymise=True):
+def extract_clinical_outcomes(patient_id_path, patient_info_path, id_sheet = 'Sheet1', info_sheet = 'Export cases registered in.', anonymise=True, selected_outcomes = default_outcomes):
     """
     Example use:
     extract_clinical_outcomes(
@@ -44,14 +44,14 @@ def extract_clinical_outcomes(patient_id_path, patient_info_path, id_sheet = 'Sh
 
     output_df = output_df[
         ['pid', 'hospital_id', 'first_name','last_name', 'dob', 'Onset time']
-        + default_outcomes
+        + selected_outcomes
     ]
 
 
     outfile_name = 'extracted_clinical_outcomes_' + os.path.basename(patient_info_path)
 
     if anonymise:
-        output_df = output_df[['pid'] + default_outcomes]
+        output_df = output_df[['pid'] + selected_outcomes]
         outfile_name = 'anon_' + outfile_name
 
     output_df.to_excel(os.path.join(os.path.dirname(patient_info_path), outfile_name))
