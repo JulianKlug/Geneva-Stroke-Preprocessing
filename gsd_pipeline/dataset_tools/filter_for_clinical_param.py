@@ -45,7 +45,7 @@ def filter_for_clinical_param(dataset_path, clinical_path, clinical_parameter, i
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Add penumbra segmentation based on Tmax > 6s to the perfusion map dataset')
+    parser = argparse.ArgumentParser(description='Filter dataset for patients with given clinical parameter')
     parser.add_argument('dataset_path')
     parser.add_argument('clinical_path')
     parser.add_argument('-p', '--parameter',  help='Clinical parameter to be filtered for', required=True, default=None)

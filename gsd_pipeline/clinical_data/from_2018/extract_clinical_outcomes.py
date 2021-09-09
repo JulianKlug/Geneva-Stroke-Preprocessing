@@ -18,8 +18,14 @@ default_outcomes = [
     '3M Death'
 ]
 
+
 def extract_clinical_outcomes(patient_id_path, patient_info_path, id_sheet = 'Sheet1', info_sheet = 'Export cases registered in.', anonymise=True):
     """
+    Example use:
+    extract_clinical_outcomes(
+    './path',
+    './path', id_sheet = 'Sheet1', info_sheet = 'Sheet1',
+    anonymise=False)
     """
     print('WARNING: Remove header and blank lines from patient info file first.')
 
@@ -51,8 +57,3 @@ def extract_clinical_outcomes(patient_id_path, patient_info_path, id_sheet = 'Sh
     output_df.to_excel(os.path.join(os.path.dirname(patient_info_path), outfile_name))
     print('Output may contain duplicates, please remove them manually as not all duplicate entries are the same.')
 
-
-extract_clinical_outcomes(
-    '/Users/jk1/temp/extract_clinical_2018/patient_ids_keys_2018.xlsx',
-    '/Users/jk1/temp/extract_clinical_2018/SSR_cases_of_2018_(Adm,_Hosp_and_FU).xlsx', id_sheet = 'Sheet1', info_sheet = 'Export cases registered in.',
-    anonymise=False)
